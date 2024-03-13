@@ -40,7 +40,10 @@ const walletDatas = convertCSVToObjectSync(walletPath);
         // 遍历walletDatas
         for (let i = 0; i < walletDatas.length; i++) {
             const walletData = walletDatas[i];
-            const wallet = new ethers.Wallet(walletData.privateKey, provider);
+            const privateKey = walletData.privateKey.replace(/\r/g, '');
+            const toAddress = walletData.toAddress.replace(/\r/g, '');
+
+            const wallet = new ethers.Wallet(privateKey, provider);
             const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, wallet)
             const balance = await tokenContract.balanceOf(wallet.address);
             console.log(`Wallet ${i + 1}: ${balance.toString()}`);
@@ -50,7 +53,7 @@ const walletDatas = convertCSVToObjectSync(walletPath);
                 continue;
             }
             // 转账至指定地址
-            const tx = await tokenContract.transfer(walletData.toAddress, balance);
+            const tx = await tokenContract.transfer(toAddress, balance);
             console.log(`transfer sussces,Tx Hash: ${tx.hash}`);
         }
 
